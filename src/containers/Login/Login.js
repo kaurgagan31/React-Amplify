@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import { Formik } from 'formik';
-import { Grid, Typography, TextField, Card, CardContent, CardActions, Button, Snackbar, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
+import { Grid, Avatar, Typography, TextField, Card, CardContent, CardActions, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
+import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import useStyles from "./styles";
 import * as Yup from 'yup';
 import { Auth } from 'aws-amplify';
-function Alert(props) {
-        return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
 
 const Login = () => {
 
@@ -18,19 +15,8 @@ const Login = () => {
                 error: '',
                 redirect: false
         });
-        const [openModal, setModal] = useState({
-                open: false,
-                vertical: 'top',
-                horizontal: 'center',
-        });
         const [openDialog, setOpen] = useState(false);
-        const { vertical, horizontal, open } = openModal;
         var classes = useStyles();
-
-        const handleClose = () => {
-                setModal({ ...openModal, open: false });
-                setValues({ ...userValues, redirect: true });
-        };
 
         const handleCloseDialog = () => {
                 setOpen(false);
@@ -38,15 +24,12 @@ const Login = () => {
 
         return (
                 <>
-                        <h1>Login Here</h1>
                         <Formik
-                                initialValues={{
-                                        email: '', password: ''
-                                }}
+                                initialValues={{ email: '', password: '' }}
                                 validationSchema={Yup.object({
                                         email: Yup.string()
                                                 .email('Invalid email address')
-                                                .required('Required'),
+                                                .required('Username is required'),
                                         password: Yup.string()
                                                 .max(99, 'Maximum limit of 99 characters')
                                                 .required("Please Enter your password")
@@ -62,14 +45,16 @@ const Login = () => {
                                                 )
                                                 .required('Required')
                                 })}
-                                onSubmit={(values, { setSubmitting, resetForm, setFieldValue }) => {
+                                validateOnChange={false}
+                                validateOnBlur={false}
+                                onSubmit={(values, { resetForm }) => {
                                         let { email, password } = values;
                                         setValues({ ...userValues, loading: true });
                                         Auth.signIn(email, password)
                                                 .then(user => {
+                                                        resetForm();
                                                         localStorage.setItem('userToken', user.signInUserSession.accessToken.jwtToken);
-                                                        setModal({ ...openModal, open: true });
-                                                        setValues({ ...userValues, loading: false });
+                                                        setValues({ ...userValues, loading: false, redirect: true });
                                                 })
                                                 .catch(err => {
                                                         setValues({ ...userValues, loading: false });
@@ -81,6 +66,14 @@ const Login = () => {
                                                 <Card className={classes.card}>
                                                         <form onSubmit={formik.handleSubmit}>
                                                                 <CardContent className={classes.content}>
+                                                                        <Grid container direction="column" justify="space-between" alignItems="center">
+                                                                                <Avatar className={classes.avatar}>
+                                                                                        <LockOutlinedIcon />
+                                                                                </Avatar>
+                                                                                <Typography component="h1" variant="h5">
+                                                                                        Sign In
+                                                                        </Typography>
+                                                                        </Grid>
                                                                         <Typography variant="h6" color="primary">Username</Typography>
                                                                         <TextField
                                                                                 className={classes.formInput}
@@ -91,7 +84,9 @@ const Login = () => {
                                                                                         className: classes.input
                                                                                 }}
                                                                                 autoComplete="off"
-                                                                                 />
+                                                                                error={formik.errors.email ? true : false}
+                                                                                placeholder="Enter your username"
+                                                                        />
                                                                         {formik.touched.email && formik.errors.email ? (
                                                                                 <div className={classes.error}>{formik.errors.email}</div>
                                                                         ) : null}
@@ -100,45 +95,31 @@ const Login = () => {
                                                                                 className={classes.formInput}
                                                                                 id="password"
                                                                                 variant="outlined"
+                                                                                error={formik.errors.password ? true : false}
                                                                                 type="password"
                                                                                 {...formik.getFieldProps('password')}
                                                                                 InputProps={{
                                                                                         className: classes.input
                                                                                 }}
                                                                                 autoComplete="off"
-                                                                                 />
-                                                                        {formik.errors.password ? (
+                                                                                placeholder="Enter your password"
+                                                                        />
+                                                                        {formik.touched.password && formik.errors.password ? (
                                                                                 <div className={classes.error}>{formik.errors.password}</div>
                                                                         ) : null}
                                                                 </CardContent>
                                                                 <CardActions className={classes.footer}>
-                                                                        <Button type="submit" variant="outlined" size="large" color="secondary"  > {userValues.loading ? <CircularProgress color="secondary" /> : 'Login'}</Button>
+                                                                        <Button fullWidth type="submit" variant="contained" size="large" color="secondary"  > {userValues.loading ? <CircularProgress color="primary" /> : 'Login'}</Button>
                                                                 </CardActions>
                                                         </form>
                                                 </Card>
-                                                <Snackbar
-                                                        anchorOrigin={{ vertical, horizontal }}
-                                                        open={open}
-                                                        onClose={handleClose}
-                                                        key={vertical + horizontal}
-                                                >
-                                                        <Alert onClose={handleClose} severity="success">
-                                                                User Login SUccessfully!
-                                                        </Alert>
-                                                </Snackbar>
-                                                <Typography variant="h6" color="initial"> <Link to="/signup" style={{ textDecoration: 'none' }}>SignUp to new account </Link></Typography>
-                                                <Typography variant="h6" color="initial"> <Link to="/forgot-password" style={{ textDecoration: 'none' }}>Forgot Password </Link></Typography>
-                                                <Typography color="primary" className={classes.copyright}>
-                                                        © 2020 Gaganjot Kaur, All rights reserved.
-                                                </Typography>
+                                                <Typography variant="h6" color="initial"> <Link to="/signup" style={{ textDecoration: 'none' }}>Don't have an account? Sign Up </Link></Typography>
+                                                <Typography variant="h6" color="initial"> <Link to="/forgot-password" style={{ textDecoration: 'none' }}>Forgot Password? </Link></Typography>
                                                 <Dialog
                                                         open={openDialog}
-                                                        onClose={() => {
-                                                                setOpen(false);
-                                                        }}
+                                                        onClose={() => { setOpen(false); }}
                                                         aria-labelledby="alert-dialog-title"
-                                                        aria-describedby="alert-dialog-description"
-                                                >
+                                                        aria-describedby="alert-dialog-description">
                                                         <DialogTitle id="alert-dialog-title">{" Oops! Some went wrong."}</DialogTitle>
                                                         <DialogContent>
                                                                 <DialogContentText id="alert-dialog-description">
@@ -148,14 +129,13 @@ const Login = () => {
                                                         <DialogActions>
                                                                 <Button onClick={handleCloseDialog} color="primary" autoFocus>
                                                                         Ok
-                                                                        </Button>
+                                                                 </Button>
                                                         </DialogActions>
                                                 </Dialog>
                                                 {userValues.redirect && <Redirect to={{ pathname: '/dashboard' }} />}
                                         </Grid>
                                 )}
                         </Formik>
-
                 </>
         )
 }

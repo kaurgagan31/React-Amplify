@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Redirect } from 'react-router-dom';
-import { TextField, Card, CardContent, Button, Typography, Grid, CircularProgress } from '@material-ui/core';
+import { TextField, Avatar, Card, CardContent, Button, Typography, Grid, CircularProgress, CardActions } from '@material-ui/core';
+import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import useStyles from "./styles";
 // amplify
 import { Auth } from 'aws-amplify';
@@ -55,28 +56,37 @@ const ConfirmEmail = (props) => {
 
         return (
                 <Grid container direction="column" justify="space-between" alignItems="center">
-                        <Typography variant="h2">Check your email</Typography>
-                        <Typography variant="subtitle2">We've sent a six­ digit confirmation code</Typography>
                         <Card className={classes.card}>
-                        {values.error && <Typography color="secondary" variant="h6">{values.error}</Typography>}
+
                                 <CardContent className={classes.content}>
+                                        <Grid container direction="column" justify="space-between" alignItems="center">
+                                                <Avatar className={classes.avatar}>
+                                                        <VerifiedUserIcon />
+                                                </Avatar>
+                                                <Typography variant="h2">Confirm your email</Typography>
+                                                <Typography variant="subtitle2">We've sent a six­ digit confirmation code</Typography>
+                                        </Grid>
                                         <Typography variant="h6" color="primary">Confirmation Code</Typography>
                                         {values && <TextField
                                                 className={classes.formInput}
                                                 id="outlined-basic"
                                                 variant="outlined"
                                                 placeholder="Enter confirmation code"
+                                                InputProps={{
+                                                        className: classes.input
+                                                }}
                                                 onChange={handleChange}
                                                 value={values.confirmationCode}
+                                                error={values.error ? true : false}
                                                 autoComplete="off" />}
-
+                                        {values.error &&<div className={classes.error}>{values.error}</div>}
                                 </CardContent>
-                                <Button variant="outlined" size="small" color="secondary" onClick={saveEmailCode} > {values.loading ? <CircularProgress color="secondary" /> : 'Confirm Email'}</Button>
-                                <Button variant="outlined" size="small" onClick={resendVerification}>Resend Verifictaion Code</Button>
+                                <CardActions>
+                                        <Button variant="contained" size="small" color="secondary" onClick={saveEmailCode} > {values.loading ? <CircularProgress color="primary" /> : 'Confirm Email'}</Button>
+                                        <Button variant="contained" size="small" color="primary" onClick={resendVerification}>Resend Code</Button>
+                                </CardActions>
+
                         </Card>
-                        <Typography color="primary" className={classes.copyright}>
-                                © 2020 Gaganjot Kaur, All rights reserved.
-                        </Typography>
                         {values.redirect && (
                                 <Redirect
                                         to={{ pathname: '/login' }}

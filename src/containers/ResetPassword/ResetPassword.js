@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Formik } from 'formik';
-import { Grid, Typography, TextField, Card, CardContent, CardActions, Button, Snackbar, CircularProgress } from '@material-ui/core';
+import { Grid, Avatar, Typography, TextField, Card, CardContent, CardActions, Button, Snackbar, CircularProgress } from '@material-ui/core';
+import LockOpenIcon from '@material-ui/icons/LockOpen';
 import MuiAlert from '@material-ui/lab/Alert';
 import useStyles from "./styles";
 import * as Yup from 'yup';
@@ -41,14 +42,13 @@ const ResetPassword = (props) => {
         };
         return (
                 <>
-                        <h1>Reset Password Here</h1>
                         <Formik
                                 initialValues={{
                                         code: '', newPassword: '', confirmPassword: ''
                                 }}
                                 validationSchema={Yup.object({
                                         code: Yup.string()
-                                                .required('Required'),
+                                                .required('Verification code is required'),
                                         newPassword: Yup.string()
                                                 .max(99, 'Maximum limit of 99 characters')
                                                 .required("Please Enter your password")
@@ -61,21 +61,20 @@ const ResetPassword = (props) => {
                                                                 );
                                                                 return regExp.test(val);
                                                         }
-                                                )
-                                                .required('Required'),
+                                                ),
                                         confirmPassword: Yup.string()
                                                 .oneOf([Yup.ref('newPassword'), null], 'Passwords must match')
                                 })}
-                                onSubmit={(values, { setSubmitting, resetForm, setFieldValue }) => {
+                                onSubmit={(values, { resetForm }) => {
                                         let { code, newPassword } = values;
                                         setValues({ ...userValues, loading: true });
                                         Auth.forgotPasswordSubmit(userValues.username.trim(), code.trim(), newPassword.trim())
                                                 .then(() => {
+                                                        resetForm();
                                                         setModal({ ...openModal, open: true });
                                                         setValues({ ...userValues, loading: false });
                                                 })
                                                 .catch(err => {
-
                                                         setValues({ ...userValues, loading: false });
                                                 });
                                 }}
@@ -85,6 +84,14 @@ const ResetPassword = (props) => {
                                                 <Card className={classes.card}>
                                                         <form onSubmit={formik.handleSubmit}>
                                                                 <CardContent className={classes.content}>
+                                                                        <Grid container direction="column" justify="space-between" alignItems="center">
+                                                                                <Avatar className={classes.avatar}>
+                                                                                        <LockOpenIcon />
+                                                                                </Avatar>
+                                                                                <Typography component="h1" variant="h5">
+                                                                                        Reset Password Here
+                                                                        </Typography>
+                                                                        </Grid>
                                                                         <Typography variant="h6" color="primary">Enter the code here</Typography>
                                                                         <TextField
                                                                                 className={classes.formInput}
@@ -95,7 +102,9 @@ const ResetPassword = (props) => {
                                                                                         className: classes.input
                                                                                 }}
                                                                                 autoComplete="off"
-                                                                               />
+                                                                                error={formik.touched.code && formik.errors.code ? true : false}
+                                                                                placeholder="Verification code" 
+                                                                        />
                                                                         {formik.touched.code && formik.errors.code ? (
                                                                                 <div className={classes.error}>{formik.errors.code}</div>
                                                                         ) : null}
@@ -110,7 +119,9 @@ const ResetPassword = (props) => {
                                                                                         className: classes.input
                                                                                 }}
                                                                                 autoComplete="off"
-                                                                                />
+                                                                                error={formik.touched.newPassword && formik.errors.newPassword ? true : false}
+                                                                                placeholder="Set Password" 
+                                                                        />
                                                                         {formik.touched.newPassword && formik.errors.newPassword ? (
                                                                                 <div className={classes.error}>{formik.errors.newPassword}</div>
                                                                         ) : null}
@@ -125,19 +136,18 @@ const ResetPassword = (props) => {
                                                                                         className: classes.input
                                                                                 }}
                                                                                 autoComplete="off"
-                                                                                 />
+                                                                                error={formik.touched.confirmPassword && formik.errors.confirmPassword ? true : false}
+                                                                                placeholder="Confirm Password" 
+                                                                        />
                                                                         {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
                                                                                 <div className={classes.error}>{formik.errors.confirmPassword}</div>
                                                                         ) : null}
                                                                 </CardContent>
                                                                 <CardActions className={classes.footer}>
-                                                                        <Button variant="outlined" type="submit" size="medium" color="secondary"  > {userValues.loading ? <CircularProgress color="secondary" /> : 'Set Password'}</Button>
+                                                                        <Button fullWidth type="submit" variant="contained" size="large" color="secondary"> {userValues.loading ? <CircularProgress color="secondary" /> : 'Set Password'}</Button>
                                                                 </CardActions>
                                                         </form>
                                                 </Card>
-                                                <Typography color="primary" className={classes.copyright}>
-                                                        © 2020 Gaganjot Kaur, All rights reserved.
-                                                </Typography>
                                                 <Snackbar
                                                         anchorOrigin={{ vertical, horizontal }}
                                                         open={open}

@@ -1,16 +1,35 @@
 import { makeStyles } from "@material-ui/styles";
 
 export default makeStyles(theme => ({
-        container: {
-
+        formInput: {
+                padding: theme.spacing(1),
+                backgroundColor: 'transparent',
+        },
+        input: {
+                width: 330,
+                height: 40,
+                marginLeft: theme.spacing(-1)
         },
         card: {
-                minWidth: 200,
-                background: 'transparent',
-                backgroundColor: 'aliceblue',
-                display: 'flex',
-                padding: theme.spacing(5),
+                width: 400,
+                border: "0.5px solid black",
+                backgroundColor: 'lavender',
+                justifyContent: 'left',
+                textAlign: 'left',
+                padding: theme.spacing(2),
                 margin: theme.spacing(2)
+        },
+        avatar: {
+                margin: theme.spacing(1),
+                backgroundColor: theme.palette.secondary.main,
+              },
+        content: {
+                alignItems: "center",
+                justifyContent: 'center',
+                textJustify: "center"
+        },
+        error: {
+                color: "red"
         },
         copyright: {
                 marginTop: theme.spacing(4),

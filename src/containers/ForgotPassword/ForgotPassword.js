@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, Redirect } from 'react-router-dom';
-import { Grid, Typography, TextField, Card, CardContent, CardActions, Button, Snackbar, CircularProgress } from '@material-ui/core';
+import { Grid, Avatar, Typography, TextField, Card, CardContent, CardActions, Button, Snackbar, CircularProgress } from '@material-ui/core';
+import LockOpenIcon from '@material-ui/icons/LockOpen';
 import MuiAlert from '@material-ui/lab/Alert';
 import { Auth } from 'aws-amplify';
 import useStyles from "./styles";
@@ -34,15 +35,13 @@ const ForgotPassword = () => {
         /** Submit the forgot password details */
         const handleSubmit = () => {
                 setValues({ ...values, loading: true });
-
                 Auth.forgotPassword(values.username)
                         .then(data => {
                                 setModal({ ...openModal, open: true });
                                 setValues({ ...values, loading: false });
                         })
                         .catch(err => {
-                                console.log(err);
-                                setValues({ ...values, loading: false, error: true, errorMessage: "Username cannot be empty" });
+                                setValues({ ...values, loading: false, error: true, errorMessage: "Username is required" });
                         });
         }
 
@@ -54,23 +53,35 @@ const ForgotPassword = () => {
 
         return (
                 <>
-                        <h1>User Details Here</h1>
                         <Grid container direction="column" justify="space-between" alignItems="center">
                                 <Card className={classes.card}>
-                                        {values.error && <Typography color="secondary" variant="h6">{values.errorMessage}</Typography>}
                                         <CardContent className={classes.content}>
-                                                <Typography variant="h6" color="primary">Please input your username</Typography>
+                                                <Grid container direction="column" justify="space-between" alignItems="center">
+                                                        <Avatar className={classes.avatar}>
+                                                                <LockOpenIcon />
+                                                        </Avatar>
+                                                        <Typography component="h1" variant="h5">
+                                                               Confirm your email
+                                                                        </Typography>
+                                                </Grid>
+                                                <Typography variant="h6" color="primary">Enter your username</Typography>
                                                 {values && <TextField
                                                         className={classes.formInput}
                                                         id="outlined-basic"
                                                         variant="outlined"
                                                         placeholder="Enter user email"
                                                         onChange={handleChange}
+                                                        InputProps={{
+                                                                className: classes.input
+                                                        }}
                                                         value={values.username}
+                                                        error={values.error ? true : false}
                                                         autoComplete="off" />}
+                                                {values.error && <div className={classes.error}>{values.errorMessage}</div>}
                                         </CardContent>
+
                                         <CardActions className={classes.actions}>
-                                                <Button variant="outlined" color="secondary" onClick={handleSubmit} > {values.loading ? <CircularProgress color="secondary" /> : 'Confirm username'}</Button>
+                                                <Button variant="contained" fullWidth size="large" color="secondary" onClick={handleSubmit} > {values.loading ? <CircularProgress color="primary" /> : 'Confirm username'}</Button>
                                         </CardActions>
 
                                 </Card>
