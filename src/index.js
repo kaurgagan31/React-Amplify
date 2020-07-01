@@ -1,13 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
+import Amplify from 'aws-amplify';
+/** Presentational */
+import { ThemeProvider } from "@material-ui/styles";
+import { CssBaseline } from "@material-ui/core";
+import Themes from "./Themes";
+import App from './components/App';
+/** Amplify config */
+import awsconfig from './aws-exports';
+/** Service worker */
 import * as serviceWorker from './serviceWorker';
 
+/** Configure amplify */
+Amplify.configure(awsconfig);
+
 ReactDOM.render(
-  <React.StrictMode>
+  <ThemeProvider theme={Themes.default}>
+    <CssBaseline />
     <App />
-  </React.StrictMode>,
+  </ThemeProvider>,
   document.getElementById('root')
 );
 
